@@ -1,10 +1,10 @@
-import os from "os";
-import fs from "fs";
-import path from "path";
+import os from "node:os";
+import fs from "node:fs";
+import path from "node:path";
 import mime from "mime-types";
 import { Agent as HttpAgent } from "node:http";
 import { Agent as HttpsAgent } from "node:https";
-import crypto from "crypto";
+import crypto from "node:crypto";
 import { Transform } from "stream";
 import type { PlatformAdapter, PlatformFeatures, HttpAgentLike } from "./adapter";
 

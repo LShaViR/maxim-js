@@ -7,20 +7,20 @@ import type { DatasetEntry } from "./models/dataset";
 import type { FileAttachment, FileDataAttachment, UrlAttachment } from "./types";
 
 // Gate external integration tests behind environment flag
-const RUN_E2E = process.env['MAXIM_E2E'] === "1";
+const RUN_E2E = process.env["MAXIM_E2E"] === "1";
 
 // Load configuration only when running E2E to avoid CI failures
 let baseUrl = "";
 let apiKey = "";
 let testDatasetId = "test-dataset-id";
 if (RUN_E2E) {
-  const config = JSON.parse(fs.readFileSync(`${process.cwd()}/testConfig.json`, "utf-8"));
-  const env = "dev"; // Change this to your test environment
-  if (!config[env]?.apiKey) throw new Error("Missing apiKey in testConfig.json");
-  if (!config[env]?.baseUrl) throw new Error("Missing baseUrl in testConfig.json");
-  baseUrl = config[env].baseUrl;
-  apiKey = config[env].apiKey;
-  testDatasetId = config[env].datasetId || testDatasetId;
+	const config = JSON.parse(fs.readFileSync(`${process.cwd()}/testConfig.json`, "utf-8"));
+	const env = "dev"; // Change this to your test environment
+	if (!config[env]?.apiKey) throw new Error("Missing apiKey in testConfig.json");
+	if (!config[env]?.baseUrl) throw new Error("Missing baseUrl in testConfig.json");
+	baseUrl = config[env].baseUrl;
+	apiKey = config[env].apiKey;
+	testDatasetId = config[env].datasetId || testDatasetId;
 }
 
 let datasetAPI: MaximDatasetAPI;
@@ -31,39 +31,40 @@ const testImagePath = path.join(testDir, "test-image.png");
 const testTextPath = path.join(testDir, "test-document.txt");
 const testJsonPath = path.join(testDir, "test-data.json");
 
-if (RUN_E2E) beforeAll(async () => {
-	datasetAPI = new MaximDatasetAPI(baseUrl, apiKey, true); // Enable debug mode
+if (RUN_E2E)
+	beforeAll(async () => {
+		datasetAPI = new MaximDatasetAPI(baseUrl, apiKey, true); // Enable debug mode
 
-	// Create test directory if it doesn't exist
-	if (!fs.existsSync(testDir)) {
-		fs.mkdirSync(testDir, { recursive: true });
-	}
+		// Create test directory if it doesn't exist
+		if (!fs.existsSync(testDir)) {
+			fs.mkdirSync(testDir, { recursive: true });
+		}
 
-	// Create test files if they don't exist
-	await createTestFiles();
-});
+		// Create test files if they don't exist
+		await createTestFiles();
+	});
 
-if (RUN_E2E) afterAll(async () => {
-	// Clean up test files
-	if (fs.existsSync(testDir)) {
-		fs.rmSync(testDir, { recursive: true, force: true });
-	}
-});
+if (RUN_E2E)
+	afterAll(async () => {
+		// Clean up test files
+		if (fs.existsSync(testDir)) {
+			fs.rmSync(testDir, { recursive: true, force: true });
+		}
+	});
 
 async function createTestFiles(): Promise<void> {
 	// Create a test image (1x1 pixel PNG)
 	const pngBuffer = Buffer.from([
-		0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d,
-		0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,
-		0x08, 0x02, 0x00, 0x00, 0x00, 0x90, 0x77, 0x53, 0xde, 0x00, 0x00, 0x00,
-		0x0c, 0x49, 0x44, 0x41, 0x54, 0x08, 0x99, 0x01, 0x01, 0x00, 0x00, 0x00,
-		0xff, 0xff, 0x00, 0x00, 0x00, 0x02, 0x00, 0x01, 0xe2, 0x21, 0xbc, 0x33,
-		0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82
+		0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d, 0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00,
+		0x00, 0x01, 0x08, 0x02, 0x00, 0x00, 0x00, 0x90, 0x77, 0x53, 0xde, 0x00, 0x00, 0x00, 0x0c, 0x49, 0x44, 0x41, 0x54, 0x08, 0x99, 0x01,
+		0x01, 0x00, 0x00, 0x00, 0xff, 0xff, 0x00, 0x00, 0x00, 0x02, 0x00, 0x01, 0xe2, 0x21, 0xbc, 0x33, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45,
+		0x4e, 0x44, 0xae, 0x42, 0x60, 0x82,
 	]);
 	fs.writeFileSync(testImagePath, pngBuffer);
 
 	// Create a test text file
-	const textContent = "This is a test document for dataset file attachment testing.\nIt contains multiple lines of text to test file processing.";
+	const textContent =
+		"This is a test document for dataset file attachment testing.\nIt contains multiple lines of text to test file processing.";
 	fs.writeFileSync(testTextPath, textContent, "utf-8");
 
 	// Create a test JSON file
@@ -73,9 +74,9 @@ async function createTestFiles(): Promise<void> {
 		metadata: {
 			purpose: "dataset testing",
 			fileType: "json",
-			size: "small"
+			size: "small",
 		},
-		items: ["item1", "item2", "item3"]
+		items: ["item1", "item2", "item3"],
 	};
 	fs.writeFileSync(testJsonPath, JSON.stringify(jsonContent, null, 2), "utf-8");
 }
@@ -88,7 +89,7 @@ function createFileAttachment(filePath: string, name: string, mimeType?: string)
 		name: name,
 		mimeType: mimeType,
 		tags: { test: "true" },
-		metadata: { source: "test-suite" }
+		metadata: { source: "test-suite" },
 	};
 }
 
@@ -100,7 +101,7 @@ function createFileDataAttachment(data: Buffer, name: string, mimeType?: string)
 		name: name,
 		mimeType: mimeType,
 		tags: { test: "true" },
-		metadata: { source: "test-suite" }
+		metadata: { source: "test-suite" },
 	};
 }
 
@@ -112,25 +113,25 @@ function createUrlAttachment(url: string, name: string, mimeType?: string): UrlA
 		name: name,
 		mimeType: mimeType,
 		tags: { test: "true" },
-		metadata: { source: "test-suite" }
+		metadata: { source: "test-suite" },
 	};
 }
 
 (RUN_E2E ? describe : describe.skip)("MaximDatasetAPI - addDatasetEntries Integration Tests", () => {
 	test("should add dataset entries with file attachments", async () => {
 		const fileAttachment = createFileAttachment(testImagePath, "test-image.png", "image/png");
-		
+
 		const timestamp = Date.now();
 		const uniqueId = `file-attachment-test-${timestamp}-${Math.random().toString(36).slice(2, 11)}`;
-		
+
 		const datasetEntries: DatasetEntry[] = [
 			{
 				columnName: `test_file_attachment_${timestamp}_${uniqueId}`,
 				cellValue: {
 					type: VariableType.FILE,
-					payload: [fileAttachment]
-				}
-			}
+					payload: [fileAttachment],
+				},
+			},
 		];
 
 		await datasetAPI.addDatasetEntries(testDatasetId, datasetEntries);
@@ -139,18 +140,18 @@ function createUrlAttachment(url: string, name: string, mimeType?: string): UrlA
 	test("should add dataset entries with fileData attachments", async () => {
 		const textContent = fs.readFileSync(testTextPath);
 		const fileDataAttachment = createFileDataAttachment(textContent, "test-document.txt", "text/plain");
-		
+
 		const timestamp = Date.now();
 		const uniqueId = `filedata-attachment-test-${timestamp}-${Math.random().toString(36).slice(2, 11)}`;
-		
+
 		const datasetEntries: DatasetEntry[] = [
 			{
 				columnName: `test_filedata_attachment_${timestamp}_${uniqueId}`,
 				cellValue: {
 					type: VariableType.FILE,
-					payload: [fileDataAttachment]
-				}
-			}
+					payload: [fileDataAttachment],
+				},
+			},
 		];
 
 		await datasetAPI.addDatasetEntries(testDatasetId, datasetEntries);
@@ -159,22 +160,22 @@ function createUrlAttachment(url: string, name: string, mimeType?: string): UrlA
 	test("should add dataset entries with URL attachments", async () => {
 		// Using a publicly accessible test image URL
 		const urlAttachment = createUrlAttachment(
-			"https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png", 
-			"test-url-image.png", 
-			"image/png"
+			"https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png",
+			"test-url-image.png",
+			"image/png",
 		);
-		
+
 		const timestamp = Date.now();
 		const uniqueId = `url-attachment-test-${timestamp}-${Math.random().toString(36).slice(2, 11)}`;
-		
+
 		const datasetEntries: DatasetEntry[] = [
 			{
 				columnName: `test_url_attachment_${timestamp}_${uniqueId}`,
 				cellValue: {
 					type: VariableType.FILE,
-					payload: [urlAttachment]
-				}
-			}
+					payload: [urlAttachment],
+				},
+			},
 		];
 
 		await datasetAPI.addDatasetEntries(testDatasetId, datasetEntries);
@@ -184,23 +185,19 @@ function createUrlAttachment(url: string, name: string, mimeType?: string): UrlA
 		const fileAttachment = createFileAttachment(testJsonPath, "test-data.json", "application/json");
 		const jsonContent = fs.readFileSync(testJsonPath);
 		const fileDataAttachment = createFileDataAttachment(jsonContent, "test-data-copy.json", "application/json");
-		const urlAttachment = createUrlAttachment(
-			"https://httpbin.org/json", 
-			"remote-json.json", 
-			"application/json"
-		);
-		
+		const urlAttachment = createUrlAttachment("https://httpbin.org/json", "remote-json.json", "application/json");
+
 		const timestamp = Date.now();
 		const uniqueId = `multiple-files-test-${timestamp}-${Math.random().toString(36).slice(2, 11)}`;
-		
+
 		const datasetEntries: DatasetEntry[] = [
 			{
 				columnName: `test_multiple_files_${timestamp}_${uniqueId}`,
 				cellValue: {
 					type: VariableType.FILE,
-					payload: [fileAttachment, fileDataAttachment, urlAttachment]
-				}
-			}
+					payload: [fileAttachment, fileDataAttachment, urlAttachment],
+				},
+			},
 		];
 
 		await datasetAPI.addDatasetEntries(testDatasetId, datasetEntries);
@@ -208,40 +205,39 @@ function createUrlAttachment(url: string, name: string, mimeType?: string): UrlA
 
 	test("should handle large file size validation", async () => {
 		// Create a large buffer (over 100MB limit)
-		const largeBuffer = Buffer.alloc(101 * 1024 * 1024, 'a'); // 101MB
+		const largeBuffer = Buffer.alloc(101 * 1024 * 1024, "a"); // 101MB
 		const largeFileAttachment = createFileDataAttachment(largeBuffer, "large-file.txt", "text/plain");
-		
+
 		const timestamp = Date.now();
 		const uniqueId = `large-file-test-${timestamp}-${Math.random().toString(36).slice(2, 11)}`;
-		
+
 		const datasetEntries: DatasetEntry[] = [
 			{
 				columnName: `test_large_file_${timestamp}_${uniqueId}`,
 				cellValue: {
 					type: VariableType.FILE,
-					payload: [largeFileAttachment]
-				}
-			}
+					payload: [largeFileAttachment],
+				},
+			},
 		];
 
-		await expect(datasetAPI.addDatasetEntries(testDatasetId, datasetEntries))
-			.rejects.toThrow(/File size exceeds the maximum allowed size/);
+		await expect(datasetAPI.addDatasetEntries(testDatasetId, datasetEntries)).rejects.toThrow(/File size exceeds the maximum allowed size/);
 	});
 
 	test("should infer MIME types from file extensions", async () => {
 		// Test with file that has no explicit MIME type
-		const fileAttachment = createFileAttachment(testImagePath, "test-without-mimetype.png");		
+		const fileAttachment = createFileAttachment(testImagePath, "test-without-mimetype.png");
 		const timestamp = Date.now();
 		const uniqueId = `mime-inference-test-${timestamp}-${Math.random().toString(36).slice(2, 11)}`;
-		
+
 		const datasetEntries: DatasetEntry[] = [
 			{
 				columnName: `test_mime_inference_${timestamp}_${uniqueId}`,
 				cellValue: {
 					type: VariableType.FILE,
-					payload: [fileAttachment]
-				}
-			}
+					payload: [fileAttachment],
+				},
+			},
 		];
 
 		await datasetAPI.addDatasetEntries(testDatasetId, datasetEntries);
@@ -251,36 +247,34 @@ function createUrlAttachment(url: string, name: string, mimeType?: string): UrlA
 		const timestamp = Date.now();
 		const uniqueId = `invalid-url-test-${timestamp}-${Math.random().toString(36).slice(2, 11)}`;
 		const invalidUrlAttachment = createUrlAttachment("invalid-url", `${uniqueId}.txt`, "text/plain");
-		
+
 		const datasetEntries: DatasetEntry[] = [
 			{
 				columnName: `test_invalid_url_${timestamp}_${uniqueId}`,
 				cellValue: {
 					type: VariableType.FILE,
-					payload: [invalidUrlAttachment]
-				}
-			}
+					payload: [invalidUrlAttachment],
+				},
+			},
 		];
 
-		await expect(datasetAPI.addDatasetEntries(testDatasetId, datasetEntries))
-			.rejects.toThrow(/Invalid URL/);
+		await expect(datasetAPI.addDatasetEntries(testDatasetId, datasetEntries)).rejects.toThrow(/Invalid URL/);
 	});
 
 	test("should handle non-existent file attachments gracefully", async () => {
 		const nonExistentFileAttachment = createFileAttachment("/path/to/nonexistent/file.txt", "missing.txt", "text/plain");
-		
+
 		const datasetEntries: DatasetEntry[] = [
 			{
 				columnName: "context",
 				cellValue: {
 					type: VariableType.FILE,
-					payload: [nonExistentFileAttachment]
-				}
-			}
+					payload: [nonExistentFileAttachment],
+				},
+			},
 		];
 
-		await expect(datasetAPI.addDatasetEntries(testDatasetId, datasetEntries))
-			.rejects.toThrow(/File not found/);
+		await expect(datasetAPI.addDatasetEntries(testDatasetId, datasetEntries)).rejects.toThrow(/File not found/);
 	});
 
 	test("should add text and JSON dataset entries", async () => {
@@ -289,16 +283,16 @@ function createUrlAttachment(url: string, name: string, mimeType?: string): UrlA
 				columnName: "Input",
 				cellValue: {
 					type: VariableType.TEXT,
-					payload: "This is a test text entry"
-				}
+					payload: "This is a test text entry",
+				},
 			},
 			{
 				columnName: "expected_output",
 				cellValue: {
 					type: VariableType.JSON,
-					payload: JSON.stringify({ test: true, value: 42, array: [1, 2, 3] })
-				}
-			}
+					payload: JSON.stringify({ test: true, value: 42, array: [1, 2, 3] }),
+				},
+			},
 		];
 
 		await datasetAPI.addDatasetEntries(testDatasetId, datasetEntries);

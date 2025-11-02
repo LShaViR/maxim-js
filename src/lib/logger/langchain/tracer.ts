@@ -1,6 +1,6 @@
 import { BaseCallbackHandler, BaseCallbackHandlerInput } from "@langchain/core/callbacks/base";
 import { isToolMessage } from "@langchain/core/messages";
-import { inspect } from "util";
+import { inspect } from "node:util";
 import { v4 as uuid } from "uuid";
 import { GenerationConfig, MaximLogger, RetrievalConfig, SpanConfig, ToolCallConfig } from "../../../../index";
 import { Container, ContainerManager, MaximMetadata, Metadata, SpanContainer, TraceContainer } from "../../models/containers";
@@ -84,10 +84,7 @@ export class MaximLangchainTracer extends BaseCallbackHandler {
 	 *   ignoreAgent: false
 	 * });
 	 */
-	constructor(
-		private readonly logger: MaximLogger,
-		input?: BaseCallbackHandlerInput,
-	) {
+	constructor(private readonly logger: MaximLogger, input?: BaseCallbackHandlerInput) {
 		super(input);
 	}
 
